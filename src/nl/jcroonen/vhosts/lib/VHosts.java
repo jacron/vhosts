@@ -9,6 +9,8 @@ import nl.jcroonen.vhosts.model.VHost;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.ResourceBundle;
 
 public class VHosts {
@@ -30,38 +32,57 @@ public class VHosts {
         return arrayList;
     }
 
-    private static ConfigNode getPlist(String q) {
+    private static ConfigNode getConfig(String q) {
         File file = new File(q);
         try {
             InputStream inputStream = new FileInputStream(file);
             ApacheConfigParser parser = new ApacheConfigParser();
             return parser.parse(inputStream);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private static VHost createVHost(ConfigNode configNode) {
-        return new VHost();
+    private static void addToDict(Dictionary<String, String> dictionary, ConfigNode configNode, String[] keys) {
+        for (String key : keys) {
+            if (configNode.getName().equals(key)) {
+                dictionary.put(key, StringUtils.trimQuotes(configNode.getContent().trim()));
+            }
+        }
+    }
+
+    private static VHost createVHost(ConfigNode configNode, String file) {
+        Dictionary<String, String> dictionary = new Hashtable<>();
+        dictionary.put("File", file);
+        for (ConfigNode child : configNode.getChildren()) {
+            if (child.getName().equals("VirtualHost")) {
+                dictionary.put("VirtualHost", child.getContent());
+                for (ConfigNode grandchild : child.getChildren()) {
+                    String[] keys = {"ServerName", "DocumentRoot", "ErrorLog", "Directory"};
+                    addToDict(dictionary, grandchild, keys);
+                }
+            }
+        }
+        return new VHost(dictionary);
     }
 
     private static ArrayList<VHost> getVhosts(ArrayList<String> files) {
         ArrayList<VHost> vHosts = new ArrayList<>();
         for (String file : files) {
-            ConfigNode configNode = getPlist(file);
-            vHosts.add(createVHost(configNode));
+            ConfigNode configNode = getConfig(file);
+            if (configNode != null) {
+                vHosts.add(createVHost(configNode, file));
+            }
         }
-        return null;
+        return vHosts;
     }
 
     public static ObservableList<VHost> getList() {
         ArrayList<String> files = getFiles();
         ArrayList<VHost> vhosts = getVhosts(files);
-        ObservableList<VHost> observableLaunchAgents = FXCollections.observableArrayList();
-        observableLaunchAgents.addAll(vhosts);
-        return observableLaunchAgents;
+        ObservableList<VHost> observableVHosts = FXCollections.observableArrayList();
+        observableVHosts.addAll(vhosts);
+        return observableVHosts;
     }
 }
