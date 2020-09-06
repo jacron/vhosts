@@ -1,0 +1,17 @@
+java: package javafx.application does not exist
+
+- download openjavafx
+https://gluonhq.com/products/javafx/
+
+- set java version in Project Structure
+
+- unzip and move to /Library/Java/javafx-sdk-14.0.2.1/lib
+https://www.jetbrains.com/help/idea/javafx.html#vm-options
+
+- add path (including /lib) to libraries
+
+- in run configuration, add VM options:
+--module-path /Library/Java/javafx-sdk-14.0.2.1/lib --add-modules javafx.controls,javafx.fxml
+
+- fix permission in MacOS: General Settings, Security & Privacy: allow anyway
+
