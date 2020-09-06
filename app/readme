@@ -1,0 +1,10 @@
+This is a hand made app.
+You have to update the jar inside of it.
+You can use refresh-app.sh for this.
+When using javafx 11 or later, use extended run command, see readme - deploy
+
+application.icns
+Evt converteren hier:
+https://cloudconvert.com/png-to-icns
+https://en.wikipedia.org/wiki/Apple_Icon_Image_format
+512x512
