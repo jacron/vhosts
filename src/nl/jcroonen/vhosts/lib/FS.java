@@ -33,6 +33,7 @@ public class FS {
                 }
             }
         } catch (IOException e) {
+            System.out.println(file);
             e.printStackTrace();
         }
         return result;

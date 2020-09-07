@@ -39,11 +39,14 @@ public class Controller {
         return menuItem;
     }
 
-    private ContextMenu createContextMenu(Dictionary<String, String> dictionary) {
+    private ContextMenu createContextMenu(Dictionary<String, String> dictionary,
+                                          Dictionary<String, String> metaDictionary) {
         final Action action = new Action(dictionary);
         final ContextMenu contextMenu = new ContextMenu();
         MenuItem menuItemEdit = createMenuItem("Edit conf file", "fa.edit");
         menuItemEdit.setOnAction(ae -> action.editConfigFile());
+        MenuItem menuItemEditVhost = createMenuItem("Edit vhost.config", "fa.edit");
+        menuItemEditVhost.setOnAction(ae -> action.editVhostConfig());
         MenuItem menuItemError = createMenuItem("View error output", "fa.error");
         menuItemError.setOnAction(ae -> action.openErrorOutput());
         MenuItem menuItemFinder = createMenuItem("Reveal in Finder", "fa.search");
@@ -51,17 +54,23 @@ public class Controller {
         MenuItem menuItemGithub = createMenuItem("Github repository", "fa.github");
         menuItemGithub.setOnAction(ae -> action.github());
         MenuItem menuItemIde;
-        if (dictionary.get("File").contains(".wsgi")) {
-            menuItemIde = createMenuItem("Open in Pycharm", "fa.lightbulb");
-            menuItemIde.setOnAction(ae -> action.openIde("pycharmPath"));
-        } else {
-            menuItemIde = createMenuItem("Open in IntelliJ", "fa.lightbulb");
-            menuItemIde.setOnAction(ae -> action.openIde("intelliJPath"));
+        String menuIdeTitle;
+        String ide = metaDictionary.get("ide");
+        if (ide == null) {
+            if (dictionary.get("File").contains(".wsgi")) {
+                ide = "pycharm";
+            } else {
+                ide = "idea";
+            }
         }
+        menuItemIde = createMenuItem("Open in " + ide, "fa.lightbulb");
+        String finalIde = ide;
+        menuItemIde.setOnAction(ae -> action.openIde(finalIde));
         MenuItem menuItemRun = createMenuItem("Open in browser", "fa.link");
         menuItemRun.setOnAction(ae -> action.openServiceDefaultClient());
         contextMenu.getItems().addAll(
                 menuItemEdit,
+                menuItemEditVhost,
                 menuItemError,
                 menuItemFinder,
                 menuItemGithub,
@@ -79,16 +88,16 @@ public class Controller {
         }
     }
 
-    private Label createMetaLabel(String root) {
-        Dictionary<String, String> metaDictionary = FS.metaVhost(root);
-        String description = metaDictionary.get("description");
+    private Label createMetaLabel(Dictionary<String, String> dictionary) {
+        String description = dictionary.get("description");
         Label label = new Label(description);
         label.setPrefWidth(230);
         label.setWrapText(true);
         return label;
     }
 
-    private Label createNameLabel(Dictionary<String, String> dictionary) {
+    private Label createNameLabel(Dictionary<String, String> dictionary,
+                                  Dictionary<String, String> metaDictionary) {
         Label label = new Label(dictionary.get("ServerName"));
         label.getStyleClass().add("tile-title");
         String port = dictionary.get("VirtualHost");
@@ -98,15 +107,16 @@ public class Controller {
         if (FS.exists(getRoot(dictionary))) {
             label.getStyleClass().add("active");
         }
-        label.setContextMenu(createContextMenu(dictionary));
+        label.setContextMenu(createContextMenu(dictionary, metaDictionary));
         return label;
     }
 
     private VBox createTile(Dictionary<String, String> dictionary) {
         VBox tile = new VBox(8);
+        Dictionary<String, String> metaDictionary = FS.metaVhost(getRoot(dictionary));
         tile.getChildren().addAll(
-                createNameLabel(dictionary),
-                createMetaLabel(getRoot(dictionary)));
+                createNameLabel(dictionary, metaDictionary),
+                createMetaLabel(metaDictionary));
         tile.setPadding(new Insets(0, 0, 12, 0));
         tile.setPrefWidth(240);
         return tile;

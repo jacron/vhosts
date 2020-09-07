@@ -29,8 +29,13 @@ public class Action {
         }
     }
 
+    public void editVhostConfig() {
+        String q = getRoot() + "/vhost.config";
+        String[] args = {bundle.getString("editorPath"), q};
+        Os.execute(args);
+    }
+
     public void editConfigFile() {
-        ResourceBundle bundle = ResourceBundle.getBundle("bundles.bundle");
         String[] args = {bundle.getString("editorPath"), dictionary.get("File")};
         Os.execute(args);
     }
