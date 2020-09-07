@@ -1,4 +1,4 @@
-package nl.jcroonen.vhosts;
+package nl.jcroonen.vhosts.lib;
 
 import java.awt.*;
 import java.io.File;

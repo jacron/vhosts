@@ -85,4 +85,13 @@ public class VHosts {
         observableVHosts.addAll(vhosts);
         return observableVHosts;
     }
+
+    public static void openHosts() {
+        ResourceBundle bundle = ResourceBundle.getBundle("bundles.bundle");
+        String[] args = {
+                bundle.getString("editorPath"),
+                bundle.getString("hostsPath")
+        };
+        Os.execute(args);
+    }
 }

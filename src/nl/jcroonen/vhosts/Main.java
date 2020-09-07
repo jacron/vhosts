@@ -9,6 +9,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import nl.jcroonen.vhosts.lib.UI;
 
 import java.io.IOException;
 import java.util.Locale;

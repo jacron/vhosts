@@ -1,12 +1,12 @@
 package nl.jcroonen.vhosts;
 
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import nl.jcroonen.vhosts.lib.FS;
 import nl.jcroonen.vhosts.lib.VHosts;
 import nl.jcroonen.vhosts.model.VHost;
 
@@ -15,13 +15,13 @@ import java.util.ResourceBundle;
 
 public class Controller {
     @FXML private TilePane tiles;
-    @FXML private ComboBox<String> sortcombobox;
     @FXML private TextField filter;
     @FXML private Label filterClear;
     @FXML private void openVHostsDir() { Action.openVhostConfigsDir(); }
     @FXML private void refresh() { reinit(); }
     @FXML private void onFilterAction() { onFilterChange(false); }
-    @FXML private void onFilterClear() {onFilterChange(true);}
+    @FXML private void onFilterClear() { onFilterChange(true); }
+    @FXML private void onHosts() { hosts(); }
 
     private ResourceBundle bundle;
     ObservableList<VHost> vHosts;
@@ -65,23 +65,50 @@ public class Controller {
                 menuItemError,
                 menuItemFinder,
                 menuItemGithub,
-                menuItemIde,
-                menuItemRun
+                menuItemRun,
+                menuItemIde
         );
         return contextMenu;
     }
 
-    private VBox createTile(Dictionary<String, String> dictionary) {
-        Label name = new Label(dictionary.get("ServerName"));
+    private String getRoot(Dictionary<String, String> dictionary) {
+        if (dictionary.get("DocumentRoor") != null) {
+            return dictionary.get("DocumentRoot");
+        } else {
+            return dictionary.get("Directory");
+        }
+    }
+
+    private Label createMetaLabel(String root) {
+        Dictionary<String, String> metaDictionary = FS.metaVhost(root);
+        String description = metaDictionary.get("description");
+        Label label = new Label(description);
+        label.setPrefWidth(230);
+        label.setWrapText(true);
+        return label;
+    }
+
+    private Label createNameLabel(Dictionary<String, String> dictionary) {
+        Label label = new Label(dictionary.get("ServerName"));
+        label.getStyleClass().add("tile-title");
         String port = dictionary.get("VirtualHost");
         if (!port.equals("*:80")) {
-            name.setText(name.getText() + port.substring(1));
+            label.setText(label.getText() + port.substring(1));
         }
+        if (FS.exists(getRoot(dictionary))) {
+            label.getStyleClass().add("active");
+        }
+        label.setContextMenu(createContextMenu(dictionary));
+        return label;
+    }
+
+    private VBox createTile(Dictionary<String, String> dictionary) {
         VBox tile = new VBox(8);
-        tile.getChildren().addAll(name);
-        name.setContextMenu(createContextMenu(dictionary));
+        tile.getChildren().addAll(
+                createNameLabel(dictionary),
+                createMetaLabel(getRoot(dictionary)));
         tile.setPadding(new Insets(0, 0, 12, 0));
-        tile.setPrefWidth(220);
+        tile.setPrefWidth(240);
         return tile;
     }
 
@@ -94,31 +121,22 @@ public class Controller {
         }
     }
 
-    private void sort(int choice) {
+    private void sort() {
         try {
             vHosts = VHosts.getList();
-            if (choice == 1) {
-                vHosts.sort((a, b) -> {
-                        String nameA = a.getDictionary().get("ServerName");
-                        String nameB = b.getDictionary().get("ServerName");
-                        return nameA.compareTo(nameB);
-                });
-            }
+            vHosts.sort((a, b) -> {
+                    String nameA = a.getDictionary().get("ServerName");
+                    String nameB = b.getDictionary().get("ServerName");
+                    return nameA.compareTo(nameB);
+            });
             populateTiles(vHosts, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void populateSortbox() {
-        String[] choices = {"- sort -", "Title"};
-        sortcombobox.getItems().clear();
-        sortcombobox.getItems().addAll(choices);
-        sortcombobox.getSelectionModel().selectedIndexProperty().addListener(
-                (ObservableValue<? extends Number> ov, Number old_val, Number new_val) -> {
-                    int choice = new_val.intValue();
-                    sort(choice);
-                });
+    private void hosts() {
+        VHosts.openHosts();
     }
 
     private void onFilterChange(Boolean clear) {
@@ -139,13 +157,11 @@ public class Controller {
     }
 
     private void reinit() {
-        sortcombobox.getSelectionModel().select(1);
-        sort(1);
+        sort();
     }
 
     public void init() {
         this.bundle = ResourceBundle.getBundle("bundles.bundle");
-        populateSortbox();
         reinit();
         filterClear.setText("");
     }

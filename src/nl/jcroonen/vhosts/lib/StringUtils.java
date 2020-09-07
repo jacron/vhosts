@@ -10,4 +10,12 @@ public class StringUtils {
         }
         return s;
     }
+
+    public static String trimSquareBrackets(String s) {
+        if (s.endsWith("]")) {
+            return s.substring(1, s.length() - 1);
+        }
+        return s;
+    }
+
 }

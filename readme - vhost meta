@@ -1,0 +1,12 @@
+in the DocumentRoot directory place a file called vhost.config
+structure it in a format like .git/config
+[description]
+    this application runs free
+[servers]
+    this application needs
+    server 1
+    server 2
+legacy vhosts client's offered a mix of special comment lines in .conf
+plus these two files in DocumentRoot: descrtiption and servers
+
+NB wsgi applications don't have DocumentRoot - use Directory instead

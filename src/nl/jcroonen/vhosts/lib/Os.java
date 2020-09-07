@@ -1,4 +1,4 @@
-package nl.jcroonen.vhosts;
+package nl.jcroonen.vhosts.lib;
 
 import java.io.BufferedReader;
 import java.io.IOException;

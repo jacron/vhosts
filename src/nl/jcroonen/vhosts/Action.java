@@ -1,6 +1,7 @@
 package nl.jcroonen.vhosts;
 
 import nl.jcroonen.vhosts.lib.FS;
+import nl.jcroonen.vhosts.lib.Os;
 
 import java.util.Dictionary;
 import java.util.ResourceBundle;
