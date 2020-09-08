@@ -1,7 +1,7 @@
 package nl.jcroonen.vhosts.lib;
 
-import apache.ApacheConfigParser;
-import apache.ConfigNode;
+import stackify.ApacheConfigParser;
+import stackify.ConfigNode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import nl.jcroonen.vhosts.model.VHost;
@@ -78,12 +78,27 @@ public class VHosts {
         return vHosts;
     }
 
-    public static ObservableList<VHost> getList() {
+    private static ObservableList<VHost> getList() {
         ArrayList<String> files = getFiles();
         ArrayList<VHost> vhosts = getVhosts(files);
         ObservableList<VHost> observableVHosts = FXCollections.observableArrayList();
         observableVHosts.addAll(vhosts);
         return observableVHosts;
+    }
+
+    public static ObservableList<VHost> getSortedVHosts() {
+        ObservableList<VHost> vHosts = null;
+        try {
+            vHosts = getList();
+            vHosts.sort((a, b) -> {
+                String nameA = a.getDictionary().get("ServerName");
+                String nameB = b.getDictionary().get("ServerName");
+                return nameA.compareTo(nameB);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return vHosts;
     }
 
     public static void openHosts() {
