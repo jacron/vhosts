@@ -26,25 +26,17 @@ public class Controller {
         VHosts.openHosts();
     }
 
-    private String changeFilter(Boolean clear) {
-        if (clear) {
-            filter.setText("");
-        }
-        return filter.getText();
-    }
-
-    private void setClear(int len) {
-        filterClear.setText(len == 0 ? "" : "x");
-    }
-
     private void populateTiles(String filter) {
         TileBuilder tileBuilder = new TileBuilder();
         tileBuilder.populateTiles(filter, tiles, vHosts);
     }
 
     private void onFilterChange(Boolean clear) {
-        String filterText = changeFilter(clear);
-        setClear(filterText.length());
+        if (clear) {
+            filter.setText("");
+        }
+        String filterText = filter.getText();
+        filterClear.setText(filterText.length() == 0 ? "" : "x");
         populateTiles(filterText);
     }
 
